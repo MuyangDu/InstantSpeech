@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>InstantSpeech: Instant Synchronous Text-to-Speech Synthesis for LLM-driven Voice Chatbots</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin-top: 20px;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+            width: 20%;
+        }
+        .table thead th {
+            text-align: center;
+        }
+        .audio-text {
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+        }
+        h2 {
+            margin-top: 40px;
+            text-align: center;
+        }
+        .audio-container {
+            text-align: center;
+        }
+        audio {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="text-center mb-4">InstantSpeech: Instant Synchronous Text-to-Speech Synthesis for LLM-driven Voice Chatbots</h1>
+
+        <h2>Abstract</h2>
+        <p>Chatbots powered by large language models (LLMs) offer natural, human-like interactions. However, traditional text-to-speech (TTS) models paired with LLMs typically wait for the entire sentence to be generated before starting synthesis, leading to increased response latency. Although word-by-word speech synthesis models have been proposed to address this issue, they still face challenges, such as relying on autoregressive architectures to maintain smooth transitions between words or conditioning on auxiliary features from LLM for naturalness. To overcome these limitations, we introduce InstantSpeech, a novel low-latency synchronous speech synthesis model. InstantSpeech employs a fully parallel architecture, combining a causal transformer-based acoustic model with a causal convolution-based vocoder, enabling it to start streaming speech synthesis immediately after the LLM generates the initial words. Furthermore, we utilize knowledge distillation to enhance speech quality under limited lookahead. Experimental results show that InstantSpeech can deliver high-quality speech with consistently low speech response latency when integrated with LLMs of various sizes.</p>
+
+        <h4>Comparison of InstantSpeech with different lookahead words, teacher, and recordings.</h4>
+        <table class="table table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>Lookahead 1</th>
+                    <th>Lookahead 2</th>
+                    <th>Lookahead 3</th>
+                    <th>Teacher (FastPitch)</th>
+                    <th>Recoding</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="5" class="audio-text">The Commission regards this as a most useful innovation and urges that the practice be continued.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_1/1.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_2/1.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_3/1.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/teacher/1.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/recording/1.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="audio-text">has hitherto been handled on an informal basis.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_1/2.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_2/2.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_3/2.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/teacher/2.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/recording/2.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="audio-text">The Secret Service in the past has sometimes guarded its right to be acknowledged as the sole protector of the Chief Executive.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_1/6.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_2/6.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_3/6.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/teacher/6.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/recording/6.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="audio-text">The assistant to the Director of the FBI testified that</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_1/3.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_2/3.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_3/3.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/teacher/3.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/recording/3.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="audio-text">field agents supplement those on the detail, particularly when the President is traveling.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_1/4.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_2/4.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_3/4.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/teacher/4.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/recording/4.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="audio-text">and be available to protect the President or Vice President when they travel</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_1/5.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_2/5.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_3/5.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/teacher/5.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/recording/5.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="audio-text">Recognition that the responsibility must be shared increases the likelihood that it will be met.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_1/7.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_2/7.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_3/7.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/teacher/7.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/recording/7.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="audio-text">This Commission can recommend no procedures for the future protection of our Presidents which will guarantee security.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_1/8.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_2/8.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/la_3/8.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/teacher/8.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_lookahead/recording/8.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                
+            </tbody>
+        </table>
+
+        <h4>Comparison of Text-Only Distillation, Text-Audio Distillation, and Without Distillation.</h4>
+        <table class="table table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>Text-Only Distillation</th>
+                    <th>Text-Audio Distillation</th>
+                    <th>Without Distillation (Lookahead 1)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="3" class="audio-text">This can help you better understand their perspective and potentially challenge your own beliefs.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TO/1.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TA/1.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/ND/1.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="audio-text">Encourage leaders to attend and promote training opportunities to their team.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TO/2.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TA/2.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/ND/2.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="audio-text">The most important thing is to be true to yourself and focus on your own worth and value beyond your appearance.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TO/3.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TA/3.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/ND/3.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="audio-text">I'll definitely check out Trello and ClickUp.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TO/4.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TA/4.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/ND/4.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="audio-text">Simply being present and aware in the moment can help you shift your focus to the meal in front of you.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TO/5.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TA/5.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/ND/5.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="audio-text">This technique can help shift your focus to the positive aspects of your life and increase feelings of happiness and contentment.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TO/6.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TA/6.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/ND/6.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="audio-text">I understand your frustration about the slow progress on this issue.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TO/7.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TA/7.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/ND/7.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="audio-text">It's interesting to think about how AI could potentially help writers overcome writer's block or creative blocks.</td>
+                </tr>
+                <tr>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TO/8.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/TA/8.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                    <td class="audio-container">
+                        <audio controls>
+                            <source src="samples/samples_distillation/ND/8.wav" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+
